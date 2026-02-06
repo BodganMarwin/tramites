@@ -1,0 +1,79 @@
+{% extends "main/base.html" %}
+{% block title %}Detalle BPM: {{ bpm.titulo_bpm }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Detalle del Proceso BPM</h1>
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title">{{ bpm.titulo_bpm }}</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>ID:</strong> {{ bpm.pk }}</p>
+        <p><strong>Descripción:</strong> {{ bpm.descripcion_bpm|default:"Sin descripción" }}</p>
+        <p><strong>Fecha de Creación:</strong> {{ bpm.fecha_bpm }}</p>
+        <p><strong>Estado:</strong> 
+            {% if bpm.estado_bpm %}
+                <span class="badge bg-success">Finalizado</span>
+            {% else %}
+                <span class="badge bg-warning">Activo</span>
+            {% endif %}
+        </p>
+        <hr>
+        <div class="row">
+            <div class="col"><h5 class="mb-4">Lista de Tareas del Proceso</h5></div>
+            <div class="col text-right">
+                <button class="btn btn-primary mb-3" id="btnCrearTramite" data-url="{% url 'tarea_create' bpm.id  %}">
+                    <i class="bi bi-file-earmark-plus"></i> Tarea
+                </button>
+            </div>
+        </div>
+        {% if tareas %}
+            <table id="dataTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>BPM</th>
+                        <th>Posición</th>
+                        <th>Unidad Revisora</th>
+                        <th>Documento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tarea in tareas %}
+                    <tr>
+                        <td>{{ tarea.titulo_tarea }}</td>
+                        <td>{{ tarea.bpm_tarea.titulo_bpm }}</td>
+                        <td>{{ tarea.posicion_tarea }}</td>
+                        <td>{{ tarea.unidad_tarea.nombre_grupo }}</td>
+                        <td>
+                            {% if tarea.documento_tarea %}
+                                <span class="badge bg-success">Sí</span>
+                            {% else %}
+                                <span class="badge bg-danger">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'tarea_detail' pk=tarea.pk %}" class="btn btn-sm btn-info">Ver</a>
+                            <a href="{% url 'tarea_update' pk=tarea.pk %}" class="btn btn-sm btn-warning">Editar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No hay tareas registradas.</p>
+            {% endif %}
+        <hr>
+        <a href="{% url 'bpm_update' pk=bpm.pk %}" class="btn btn-warning">Editar</a>
+        <a href="{% url 'bpm_list' %}" class="btn btn-secondary">Volver a la Lista</a>
+    </div>
+</div>
+{% comment %} <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Contenido cargado via AJAX -->
+        </div>
+    </div>
+</div> {% endcomment %}
+{% endblock %}

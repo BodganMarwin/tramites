@@ -1,0 +1,96 @@
+{% extends 'main/base.html' %}
+{% block titulo %}Documentos{% endblock titulo %}
+{% block content %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">DOCUMENTOS</h1>
+
+        {% comment %} <button class="btn btm-sm btn-primary" id="btnCrearTramite" data-url="{% url 'documento_create' %}">
+            <i class="bi bi-file-earmark-plus"></i> Nuevo Documento
+        </button> {% endcomment %}
+        <a class="btn btm-sm btn-primary" href="{% url 'documento_create' %}">
+            <i class="bi bi-file-earmark-plus"></i> Nuevo Documento
+        </a>
+    </div>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Mis Documentos</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Cite</th>
+                            <th>Asunto</th>
+                            <th>Destino</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for documento in documentos %}
+                        <tr>
+                            <td>{{ documento.cite_documento }}</td>
+                            <td>{{ documento.titulo_documento }}</td>
+                            <td>{{ documento.destinatario_documento }}</td>
+                            <td>{{ documento.fecha_documento|date:"d/m/Y" }}</td>
+                            <td>
+                                <a href="{% url 'documento_detail' pk=documento.pk %}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i>Ver</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">No se encontraron trámites registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+{% endblock content %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener el ID del trámite recién creado del contexto de Django
+            const newTramiteId = '{{ new_tramite_id }}';
+            
+            if (newTramiteId) {
+                // 1. Configurar la URL de la vista de creación de Ruta
+                // Asumiendo que la URL se llama 'ruta_create' y espera el ID: /ruta/crear/12/
+                const rutaUrl = "{% url 'derivartramite' pk=0 %}".replace('/0/', '/' + newTramiteId + '/');
+                
+                // 2. Cargar el contenido del formulario de RutaTramite vía AJAX
+                fetch(rutaUrl)
+                    .then(response => {
+                        // Si la vista de creación de ruta renderiza solo el formulario, esto es suficiente
+                        return response.text();
+                    })
+                    .then(html => {
+                        // 3. Insertar el HTML del formulario en el cuerpo del modal
+                        document.getElementById('ruta-modal-body-content').innerHTML = html;
+                        document.getElementById('tramite-id-span').textContent = newTramiteId;
+
+                        // 4. Abrir el modal de Bootstrap
+                        const rutaModal = new bootstrap.Modal(document.getElementById('derivarRutaModal'));
+                        rutaModal.show();
+                    })
+                    .catch(error => {
+                        console.error("Error al cargar el formulario de ruta:", error);
+                        // Manejo de error para el usuario
+                        document.getElementById('ruta-modal-body-content').innerHTML = '<p class="text-danger">Error al cargar el formulario. Intente de nuevo.</p>';
+                    });
+            }
+        });
+    </script>
+{% endblock %}

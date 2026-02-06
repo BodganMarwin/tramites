@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: letter;
+            margin: 1cm 2cm 1cm 2cm; /* Márgenes estándar de oficina */
+            @frame footer {
+                -pdf-frame-content: footer_content;
+                bottom: 1cm;
+                margin-left: 3cm;
+                margin-right: 2.5cm;
+                height: 1cm;
+            }
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 11pt;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* Encabezado */
+        .header-table {
+            width: 100%;
+            border-bottom: 1px solid #000;
+            margin-bottom: 20px;
+        }
+
+        .cite-box {
+            text-align: right;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        /* Datos del documento */
+        .info-section {
+            margin-bottom: 30px;
+        }
+
+        .fecha {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .destinatario {
+            margin-bottom: 20px;
+        }
+
+        .referencia {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+
+        /* Contenido del editor (CKEditor) */
+        .contenido-documento {
+            text-align: justify;
+        }
+
+        /* Firmas */
+        .signature-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        #footer_content {
+            font-size: 9pt;
+            color: #777;
+            text-align: center;
+            vertical-align: bottom;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <table style="">
+            <tr>
+                <td style="width: 20%;" rowspan="3">
+                    <img src="static\img\logo-documento.png" alt="Logo Institución" style="width: 150px; height: 100px;">
+                </td>
+                <td></td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <td >
+                </td>
+                <td style="width: 60%; text-align: center; vertical-align: bottom;" rowspan="3">
+                    <h1 style="color: #000000; margin: 0;">{{ usuario.unidad_usuario.nombre_unidad }}</h1>
+                    <h3 style="color: #000000; margin: 0;">{{ usuario.unidad_usuario }}</h2>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td style="width: 20%;" >
+                    logo
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-size: 10pt;">
+
+                </td>
+                <td style="text-align: center; font-size: 10pt;">
+
+                </td>
+                <td style="text-align: center; font-size: 10pt;">
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table style="border:1px solid #000; width: 100%; border-collapse: collapse;">
+            <tr style="padding: 5px;">
+                <td style="width: 50%;" rowspan="2">
+                    <strong> A:</strong> {{ doc.destinatario_documento.get_full_name }}<br>
+                </td>
+                <td colspan="2" style="text-align: center;">
+                    <strong> {{ doc.get_tipo_documento_display | upper }} </strong> 
+                </td>
+            </tr>
+            <tr style="padding: 5px;">
+                <td colspan="2">
+                    <strong>N°:</strong> {{ doc.cite_documento }}<br>
+                    Fecha: {{ doc.fecha_documento|date:"d \d\e F \d\e Y" }}
+                </td>
+            </tr>
+            <tr style="padding: 5px;">
+                <td colspan="3">
+                    <strong>ASUNTO: {{ doc.titulo_documento|upper }}</strong>
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+   
+    
+
+    <div class="contenido-documento">
+        {{ doc.contenido_documento|safe }}
+    </div>
+
+    <div class="signature-section">
+        Atentamente,<br><br><br><br>
+        <strong>{{ doc.usuario_creador_documento.get_full_name }}</strong><br>
+        {{ doc.usuario_creador_documento.groups.first.name|default:"Responsable" }}
+    </div>
+
+    <div id="footer_content">
+        <div>
+            <small>Av. Ballivian N° 0713 esq. La Paz</small>
+        </div>
+        <div><small>Casilla: 587 - Central Piloto: 4251000 - Fax: 4250301</small></div>
+        
+        
+        <small>www.comteco.com.bo - Cochabamba - Bolivia</small>
+    </div>
+
+</body>
+</html>

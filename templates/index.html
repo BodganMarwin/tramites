@@ -1,0 +1,76 @@
+{% extends 'main/base.html' %}
+{% block titulo %}Bienvenido{% endblock titulo %}
+{% block content %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Bienvenido</h1>
+        {% comment %} <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a> {% endcomment %}
+    </div>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">TRAMITES</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Asunto</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tramite in tramites %}
+                        <tr>
+                            <td>{{ tramite.codigo_control }}</td>
+                            <td>{{ tramite.asunto_control }}</td>
+                            <td>{{ tramite.get_origen_control_display }}</td>
+                            <td>
+                                {% if tramite.estado_control %}
+                                <span class="badge bg-success">FINALIZADO</span>
+                                {% else %}
+                                    {% for ruta in rutas %}
+                                        {% if ruta.control_tramite.id == tramite.id %}
+                                            {{ ruta.destino_ruta }}-
+                                            {% if ruta.estado_ruta %}
+                                            <span class="badge bg-success">FINALIZADO</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">ACTIVO</span>
+                                            {% endif %}
+                                    </br>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            
+                                {% comment %} {{ tramite.destino_ruta_control }} {% endcomment %}
+                            </td>
+                            <td>{{ tramite.fecha_ini_control|date:"d/m/Y" }}</td>
+                            <td>
+                                {{ tramite.fecha_fin_control|date:"d/m/Y" }}
+                                {% comment %} <a href="{% url 'detailviewcontrol' tramite.id %}" class="btn btn-sm btn-info">Ver Detalle</a> {% endcomment %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">No se encontraron trámites registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+{% endblock content %}

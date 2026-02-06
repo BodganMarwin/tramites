@@ -1,0 +1,30 @@
+{% extends "main/base.html" %}
+{% block title %}{% if form.instance.pk %}Editar BPM{% else %}Crear BPM{% endif %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if form.instance.pk %}Editar BPM{% else %}Crear Nuevo BPM{% endif %}</h1>
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        <label for="{{ form.titulo_bpm.id_for_label }}" class="form-label">{{ form.titulo_bpm.label }}</label>
+        {{ form.titulo_bpm }}
+        {% for error in form.titulo_bpm.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3">
+        <label for="{{ form.descripcion_bpm.id_for_label }}" class="form-label">{{ form.descripcion_bpm.label }}</label>
+        {{ form.descripcion_bpm }}
+        {% for error in form.descripcion_bpm.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-check mb-3">
+        {{ form.estado_bpm }}
+        <label class="form-check-label" for="{{ form.estado_bpm.id_for_label }}">{{ form.estado_bpm.label }}</label>
+        {% for error in form.estado_bpm.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="{% url 'bpm_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

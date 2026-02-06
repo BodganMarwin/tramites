@@ -1,0 +1,59 @@
+
+# services:
+#   db:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_DB: tramites
+#       POSTGRES_USER: tramite
+#       POSTGRES_PASSWORD: .Tr4m1t3.!
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+#   web:
+#     build: .
+#     container_name: django_web
+#     command: python manage.py runserver 0.0.0.0:8000
+#     # command: gunicorn tramites.wsgi:application --bind 0.0.0.0:8000 --workers 3
+#     volumes:
+#       - .:/app
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - DEBUG=0
+#       - POSTGRES_DB=tramites
+#       - POSTGRES_USER=tramite
+#       - POSTGRES_PASSWORD=.Tr4m1t3.!
+#       - POSTGRES_HOST=192.9.200.93
+#       - POSTGRES_PORT=5432
+#       - ALLOWED_HOSTS=127.0.0.1,localhost
+#     depends_on:
+#       - db
+
+# volumes:
+#   postgres_data:
+########################################################################################
+# Dockerfile for the Django project
+# version: '3.9'
+
+services:
+  web:
+    build: .
+    container_name: django_app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DB: tramitesdb
+      POSTGRES_USER: tramite
+      POSTGRES_PASSWORD: .Tr4m1t3.!
+      POSTGRES_HOST: 192.9.200.162
+      POSTGRES_PORT: 5432
+      DJANGO_ALLOWED_HOSTS: "sistram.comteco.com.bo,*"
+      DEBUG: "0"
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_EMAIL: admin@example.com
+      DJANGO_SUPERUSER_PASSWORD: Admin123!
+
+      

@@ -1,0 +1,201 @@
+<div class="modal-header">
+    <h2 class="modal-title" id="exampleModalLabel">Control de Tramite</h2>
+    {% comment %} <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+</div>
+<form method="post" action="{% url 'createcontrol' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal-body">
+        <div class="row">
+            <div class="col col-8">
+                <label for="{{ form.codigo_control.id_for_label }}" class="form-label">Codigo:</label>
+                <div class="input-group mb-3">
+                    {{ form.gerencia_codigo_control }}
+                    {% for error in form.gerencia_codigo_control.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                    {% if form.gerencia_codigo_control.help_text %}
+                        <div class="form-text">{{ form.gerencia_codigo_control.help_text }}</div>
+                    {% endif %}
+
+                    {{ form.unidad_destino_codigo_control }}
+                    {% for error in form.unidad_destino_codigo_control.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                    {% if form.unidad_destino_codigo_control.help_text %}
+                        <div class="form-text">{{ form.unidad_destino_codigo_control.help_text }}</div>
+                    {% endif %}
+
+                    {{ form.anio_codigo_control }}
+                    {% for error in form.anio_codigo_control.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                    {% if form.anio_codigo_control.help_text %}
+                        <div class="form-text">{{ form.anio_codigo_control.help_text }}</div>
+                    {% endif %}
+                    
+                    {{ form.numero_secuencial_codigo_control }}
+                    {% for error in form.numero_secuencial_codigo_control.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                    {% if form.numero_secuencial_codigo_control.help_text %}
+                        <div class="form-text">{{ form.numero_secuencial_codigo_control.help_text }}</div>
+                    {% endif %}
+                </div>
+
+                {% comment %} {{ form.codigo_control }}
+                {% for error in form.codigo_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.codigo_control.help_text %}
+                    <div class="form-text">{{ form.codigo_control.help_text }}</div>
+                {% endif %} {% endcomment %}
+            </div>
+            <div class="col col-4">
+                <label class="form-label">Fecha:</label>
+                <input type="text" class="form-control" maxlength="50" required=false value="{% now 'd/m/Y' %}" disabled>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.asunto_control.id_for_label }}" class="form-label">Asunto:</label>
+                {{ form.asunto_control }}
+                {% for error in form.asunto_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.asunto_control.help_text %}
+                    <div class="form-text">{{ form.asunto_control.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.tipo_control.id_for_label }}" class="form-label">Tipo Adjunto:</label>
+                {{ form.tipo_control }}
+                {% for error in form.tipo_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.tipo_control.help_text %}
+                    <div class="form-text">{{ form.tipo_control.help_text }}</div>
+                {% endif %}
+            </div>
+            <div class="col">
+                <label for="{{ form.nota_control.id_for_label }}" class="form-label">Cite:</label>
+                {{ form.nota_control }}
+                {% for error in form.nota_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.nota_control.help_text %}
+                    <div class="form-text">{{ form.nota_control.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.origen_control.id_for_label }}" class="form-label">{{ form.origen_control.label }}:</label>
+                {{ form.origen_control }}
+                {% for error in form.origen_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.origen_control.help_text %}
+                    <div class="form-text">{{ form.origen_control.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.documento_pdf.id_for_label }}" class="form-label">{{ form.documento_pdf.label }}:</label>
+                {{ form.documento_pdf }}
+                {% for error in form.documento_pdf.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.documento_pdf.help_text %}
+                    <div class="form-text">{{ form.documento_pdf.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% comment %} <div class="class row">
+            <div class="class col">
+                <label for="{{ form.destino_ruta_control.id_for_label }}" class="form-label">{{ form.destino_ruta_control.label }}:</label>
+                {{ form.destino_ruta_control }}
+                {% for error in form.destino_ruta_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.destino_ruta_control.help_text %}
+                    <div class="form-text">{{ form.destino_ruta_control.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="class row">
+            <div class="class col form-check">
+                <label for="{{ form.instruccion_especifica_control.id_for_label }}" class="form-label">{{ form.instruccion_especifica_control.label }}:</label>
+                {{ form.instruccion_especifica_control }}
+                {% for error in form.instruccion_especifica_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.instruccion_especifica_control.help_text %}
+                    <div class="form-text">{{ form.instruccion_especifica_control.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="class row">
+            <div class="class col">
+                <label for="{{ form.instruccion_complementaria_control.id_for_label }}" class="form-label">{{ form.instruccion_complementaria_control.label }}:</label>
+                {{ form.instruccion_complementaria_control }}
+                {% for error in form.instruccion_complementaria_control.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.instruccion_complementaria_control.help_text %}
+                    <div class="form-text">{{ form.instruccion_complementaria_control.help_text }}</div>
+                {% endif %}
+            </div>
+        </div> {% endcomment %}
+    </div>
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="modal-footer">
+        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-success"><i class="fas fa-check fa-sm text-white-50"></i> Aceptar </button>
+    </div>
+</form>
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#selectmultiple').selectpicker({
+            // Clase esencial para activar el plugin
+            // liveSearch: true, // Opcional: para barra de búsqueda
+            // actionsBox: true, // Muestra los botones "Seleccionar todo" y "Deseleccionar todo"
+            selectedTextFormat: 'count > 3', // Muestra "X de Y seleccionados"
+            title: 'Seleccione una o Varias Opciones',
+            width: '100%'
+            // selectAllText: 'Seleccionar todo',
+            // deselectAllText: 'Deseleccionar todo'
+        });
+        
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        const ger = $('#id_gerencia_codigo_control').val();
+        const anio = $('#id_anio_codigo_control').val();
+        $('#id_unidad_destino_codigo_control').change(function() {
+            var unidadAcronimo = $(this).val();
+            if (unidadAcronimo) {
+                $.ajax({
+                    url: "{% url 'get_correlativo' %}",
+                    data: {
+                        'acronimo': unidadAcronimo
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#id_numero_secuencial_codigo_control').val(data.siguiente_numero);
+                    }
+                });
+            } else {
+                $('#id_numero_secuencial_codigo_control').val('');
+            }
+        });
+    });
+</script>
+
+{% endblock extra_js %}

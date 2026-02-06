@@ -1,0 +1,356 @@
+{% extends 'main/base.html' %}
+{% block titulo %}Bienvenido{% endblock titulo %}
+{% block content %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Detallar</h1>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h6 class="m-0 font-weight-bold text-primary">Detalle de Tramite</h6>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    <label for="" class="form-label">Codigo de Control:</label>
+                    <input type="text" class="form-control" value="{{ tramite.codigo_control }}" disabled>
+                </div>
+                <div class="col">
+                    <label for="" class="form-label">Tipo Adjunto:</label>
+                    <div class="input-group mb-3">
+                        <span class="form-control input-group-text">{{ tramite.get_tipo_control_display }}</span>
+                        <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" value="{{ tramite.nota_control }}" disabled>
+                    </div>
+                </div>
+                <div class="col">
+                    <label for="" class="form-label">Estado Tramite:</label>
+                    {% if tramite.estado_control %}
+                        <span class="form-control bg-success text-white font-weight-bold">FINALIZADO</span>
+                    {% else %}
+                        <span class="form-control bg-warning text-white font-weight-bold">ACTIVO</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="" class="form-label">Unidad de Origen:</label>
+                    <input type="text" class="form-control" value="{{ tramite.origen_control | lower | capfirst }}" disabled>
+                </div>
+                <div class="col">
+                    <label for="" class="form-label">Fecha:</label>
+                    <input type="text" class="form-control" value="{{ tramite.fecha_ini_control|date:'d/m/Y' }}" disabled>
+                </div>
+                <div class="col">
+                    <label for="" class="form-label">Fecha Finalización:</label>
+                    <input type="text" class="form-control" value="{{ tramite.fecha_fin_control|date:'d/m/Y' }}" disabled>
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="" class="form-label">Asunto:</label>
+                    <input type="text" class="form-control" value="{{ tramite.asunto_control }}" disabled>
+                </div>
+                <div class="col">
+                    <label for="pdfModal" class="form-label">Documento Adjunto:</label>
+                    
+                    {% if tramite.documento_pdf %}
+                        {% url 'servir_pdf_en_linea' pk=tramite.pk as pdf_proxy_url %}
+                        <p>
+                            <button type="button" 
+                                    class="form-control btn btn-sm btn-info ver-pdf-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#pdfModal"
+                                    data-pdf-url="{{ pdf_proxy_url }}"  
+                                    data-tramite-codigo="{{ tramite.codigo_control }}">
+                                <i class="bi bi-file-earmark-pdf-fill"></i> Ver PDF
+                            </button>
+                        </p>                        
+                    {% else %}
+                        <p class="text-muted">No hay documento PDF adjunto.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col">
+                    <label for="" class="form-label">Seguimiento de Tramite:</label>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="table" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Origen</th>
+                                    <th>Destino</th>
+                                    <th>Entregado</th>
+                                    <th>Resepcion</th>
+                                    <th>Despacho/Fin</th>
+                                    <th>Tipo</th>
+                                    <th>Ins. Especifica</th>
+                                    <th>Complementarias</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ruta in rutas %}
+                                <tr style="font-size: 12.5px;">
+                                    <td>{{ ruta.origen_ruta }}</td>
+                                    <td><b>{{ tramite.usuario_jerarquia_control.username_usuario }}</b></br>{{ ruta.destino_ruta }}</td>
+                                    <td>{{ ruta.fecha_ini_ruta|date:"d/m/Y-" }}<span class="text-danger">{{ ruta.fecha_ini_ruta|date:"H:i" }}</span></td>
+                                    <td>{{ ruta.fecha_resepcion_ruta|date:"d/m/Y-" }}<span class="text-danger">{{ ruta.fecha_resepcion_ruta|date:"H:i" }}</span></td>
+                                    <td>{{ ruta.fecha_fin_ruta|date:"d/m/Y-" }}<span class="text-danger">{{ ruta.fecha_fin_ruta|date:"H:i" }}</span></td>
+                                    <td><span class="badge bg-warning">{{ ruta.tipo_ruta }}</span></td>
+                                    <td>{% for aux in ruta.instruccion_especifica_ruta.all %}
+                                            <i class="bi bi-caret-right-fill"></i>
+                                            {{ aux.titulo_instruccion|title }}</br>
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ ruta.instruccion_complementaria }}</td>
+                                    <td>
+                                        {% if tramite.estado_control %}
+                                            <span class="badge bg-success">FINALIZADO</span>
+                                        {% else %}
+                                            {% if ruta.estado_ruta %}
+                                                <span class="badge bg-success">DERIVADO</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">ACTIVO</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8">No se encontraron trámites registrados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+            {% if resepcionado %}
+                {% if usuario.unidad_usuario.nombre_unidad == tramite.destino_jerarquia_control.nombre_unidad and not tramite.estado_control and tramite.usuario_jerarquia_control == usuario %}
+                    {% if tramite.destino_ruta_control == tramite.destino_jerarquia_control %}
+                    <div class="col text-center">
+                        <a class="btn btm-sm btn-danger position-absolute top-50 start-100" href="#" data-toggle="modal" data-target="#FinalizarTramiteModal">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>FINALIZAR
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <button class="btn btm-sm btn-success" id="btnCrearTramite" data-url="{% url 'derivartramite' tramite.id %}">
+                            <i class="bi bi-arrow-counterclockwise"></i> DERIVAR
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="col text-center">
+                        <a class="btn btm-sm btn-success" href="#" data-toggle="modal" data-target="#AprobarJerarquiaModal">
+                            <i class="bi bi-check-circle"></i> APROBAR
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                {% if user.username == tramite.usuario_jerarquia_control.username_usuario and not tramite.estado_control %}
+                <div class="col text-center">
+                    <a class="btn btm-sm btn-danger" href="{% url 'recepcionar_tramite' tramite.id %}">
+                        <i class="fas fa-hourglass-half fa-sm fa-fw mr-2 text-gray-400"></i>Resepcionar Tramite
+                    </a>
+                </div>
+                {% endif %}
+            {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+<!-- MODAL PARA APROBAR EL TRAMITE POR JERARQUIA -->
+<div class="modal fade" id="AprobarJerarquiaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST" id="aprobacionjerarquiaForm" action="{% url 'aprobacionjerarquia' tramite.id %}">
+                {% csrf_token %}
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="confirmarFinalizacionModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Aprobacion!!!
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        ¿Está **ABSOLUTAMENTE SEGURO** de que desea aprobar el Trámite 
+                        <strong id="tramite-codigo-display">{{ tramite.codigo_control }}</strong>? 
+                    </p>
+                    <p class="text-success">Esta acción es irreversible y aprobara el tramite.</p>
+
+                    <label for="detalle" class="form-label">Observaciones</label>
+                    <input type="text" name="observacion" id="observacion" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Sí, Aprobar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- MODAL PARA FINALIZAR TRAMITE CONTROL -->
+<div class="modal fade" id="FinalizarTramiteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST" id="finalizarTramiteForm" action="{% url 'finalizarcontrol' tramite.id %}">
+                {% csrf_token %}
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="confirmarFinalizacionModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Finalización
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        ¿Está **ABSOLUTAMENTE SEGURO** de que desea finalizar el Trámite 
+                        <strong id="tramite-codigo-display">{{ tramite.codigo_control }}</strong>? 
+                    </p>
+                    <p class="text-danger">Esta acción es irreversible y finalizará el proceso.</p>
+
+                    <label for="detalle" class="form-label">Observaciones</label>
+                    <input type="text" name="observacion" id="observacion" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Sí, Finalizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- MODAL PARA ABRIR EL PDF TRAMITE CONTROL -->
+<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> 
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel">Visualizando Documento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body" style="height: 80vh;">
+                <div id="pdf-container" style="height: 100%;">
+                    <p class="text-center text-muted">Cargando documento...</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+
+<script>
+    $(document).ready(function() {
+        // Referencia al elemento modal
+        var pdfModalEl = document.getElementById('pdfModal');
+        
+        // Escuchar el evento de Bootstrap cuando el modal se va a mostrar
+        $('#pdfModal').on('show.bs.modal', function (event) {
+            
+            var button = event.relatedTarget; 
+            var pdfUrl = button.getAttribute('data-pdf-url');
+            var tramiteCodigo = button.getAttribute('data-tramite-codigo');
+            
+            var modalTitle = pdfModalEl.querySelector('.modal-title');
+            var pdfContainer = document.getElementById('pdf-container');
+            var modalFooter = pdfModalEl.querySelector('.modal-footer');
+            
+            // Limpiar el contenido y el footer
+            pdfContainer.innerHTML = '';
+            modalFooter.innerHTML = ''; 
+
+            if (pdfUrl) {
+                console.log("Hay URL: "+pdfUrl);
+                modalTitle.textContent = 'Visualizando Documento: ' + tramiteCodigo;
+                
+                // 🌟 SOLUCIÓN: Inyectar la etiqueta <object> 🌟
+                // <object> es el estándar para contenido no HTML (PDF, Flash, etc.)
+                var objectHTML = `
+                    <object data="${pdfUrl}" 
+                            type="application/pdf" 
+                            width="100%" 
+                            height="100%" 
+                            style="border: none;">
+                        <div style="padding: 20px; text-align: center;">
+                            <p class="text-danger">No se pudo mostrar el PDF dentro del modal.</p>
+                            <a href="${pdfUrl}" target="_blank" class="btn btn-warning">
+                                <i class="bi bi-box-arrow-up-right"></i> Abrir en Pestaña Nueva
+                            </a>
+                        </div>
+                    </object>
+                `;
+                var embedHTML = `
+                    <embed src="${pdfUrl}" 
+                        type="application/pdf" 
+                        width="100%" 
+                        height="100%" 
+                        style="border: none;"/>
+                `;
+                console.log(objectHTML);
+                pdfContainer.innerHTML = objectHTML;
+                
+                // Re-inyectar los botones del Footer
+                var closeButton = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>';
+                //var newTabLink = `<a href="${pdfUrl}" target="_blank" class="btn btn-primary">Abrir en Nueva Pestaña</a>`;
+                
+                modalFooter.innerHTML = closeButton;
+                
+            } else {
+                modalTitle.textContent = 'Error al cargar documento';
+                pdfContainer.innerHTML = '<p class="text-danger">No se encontró la URL del documento PDF.</p>';
+                modalFooter.innerHTML = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>';
+            }
+        });
+
+        // Limpiar el contenido del contenedor al cerrar el modal (buena práctica)
+        $('#pdfModal').on('hidden.bs.modal', function () {
+            document.getElementById('pdf-container').innerHTML = '';
+        });
+    });
+</script>
+
+{% comment %} SCRIPT PARA FINALIZAR TRAMITE {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const finalizarModal = document.getElementById('confirmarFinalizacionModal');
+        
+        // 1. Escuchar el evento 'show.bs.modal' (cuando el modal se va a mostrar)
+        finalizarModal.addEventListener('show.bs.modal', function (event) {
+            // Obtener el botón que activó el modal (el botón de Finalizar)
+            const button = event.relatedTarget; 
+            
+            // 2. Extraer la URL completa de finalización del atributo data-url del botón
+            const finalizationUrl = button.getAttribute('data-url'); 
+            
+            // 3. Obtener el formulario dentro del modal por su ID
+            const form = finalizarModal.querySelector('#finalizarTramiteForm');
+            
+            // 4. Asignar la URL dinámica al atributo 'action' del formulario
+            if (finalizationUrl) {
+                form.setAttribute('action', finalizationUrl);
+            } else {
+                console.error("No se encontró la URL de finalización en el botón.");
+            }
+        });
+    });
+</script>
+{% endblock extra_js %}

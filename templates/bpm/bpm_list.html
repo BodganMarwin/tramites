@@ -1,0 +1,43 @@
+{% extends "main/base.html" %}
+{% block title %}Lista de BPMs{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Lista de Procesos BPM</h1>
+<a href="{% url 'bpm_create' %}" class="btn btn-primary mb-3">Crear Nuevo BPM</a>
+
+{% if bpms %}
+<table id="dataTable" class="table table-striped">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Fecha Creación</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bpm in bpms %}
+        <tr>
+            <td>{{ bpm.titulo_bpm }}</td>
+            <td>{{ bpm.descripcion_bpm|default:"N/A" }}</td>
+            <td>{{ bpm.fecha_bpm }}</td>
+            <td>
+                {% if bpm.estado_bpm %}
+                    <span class="badge bg-success">Finalizado</span>
+                {% else %}
+                    <span class="badge bg-warning">Activo</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'bpm_detail' pk=bpm.pk %}" class="btn btn-sm btn-info">Ver</a>
+                <a href="{% url 'bpm_update' pk=bpm.pk %}" class="btn btn-sm btn-warning">Editar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>No hay procesos BPM registrados.</p>
+{% endif %}
+{% endblock %}

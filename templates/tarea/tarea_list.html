@@ -1,0 +1,45 @@
+{% extends "main/base.html" %}
+{% block title %}Lista de Tareas{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Lista de Tareas del Proceso</h1>
+{% comment %} <a href="{% url 'tarea_create' %}" class="btn btn-primary mb-3">Crear Nueva Tarea</a> {% endcomment %}
+
+{% if tareas %}
+<table id="dataTable" class="table table-striped">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>BPM</th>
+            <th>Posición</th>
+            <th>Unidad Revisora</th>
+            <th>Documento</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tarea in tareas %}
+        <tr>
+            <td>{{ tarea.titulo_tarea }}</td>
+            <td>{{ tarea.bpm_tarea.titulo_bpm }}</td>
+            <td>{{ tarea.posicion_tarea }}</td>
+            <td>{{ tarea.unidad_tarea.nombre_grupo }}</td>
+            <td>
+                {% if tarea.documento_tarea %}
+                    <span class="badge bg-success">Sí</span>
+                {% else %}
+                    <span class="badge bg-danger">No</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'tarea_detail' pk=tarea.pk %}" class="btn btn-sm btn-info">Ver</a>
+                <a href="{% url 'tarea_update' pk=tarea.pk %}" class="btn btn-sm btn-warning">Editar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>No hay tareas registradas.</p>
+{% endif %}
+{% endblock %}

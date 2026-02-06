@@ -1,0 +1,91 @@
+<div class="modal-header">
+    <h2 class="modal-title" id="exampleModalLabel">Derivar Tramite</h2>
+    {% comment %} <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+</div>
+<form method="post" action="{% url 'derivartramite' tramite.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="class modal-body">
+        <div class="row">
+            <div class="col">
+                <label class="form-label">Control Tramite:</label>
+                <input type="text" class="form-control" maxlength="50" required=false value="{{ tramite }}" disabled>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label class="form-label">Fecha:</label>
+                <input type="text" class="form-control" maxlength="50" required=false value="{% now "d/m/Y" %}" disabled>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.documento_adjunto_ruta.id_for_label }}" class="form-label">{{ form.documento_adjunto_ruta.label }}:</label>
+                {{ form.documento_adjunto_ruta }}
+                {% for error in form.documento_adjunto_ruta.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.documento_adjunto_ruta.help_text %}
+                    <div class="form-text">{{ form.documento_adjunto_ruta.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.usuario_destino_ruta.id_for_label }}" class="form-label">{{ form.usuario_destino_ruta.label }}:</label>
+                {{ form.usuario_destino_ruta }}
+                {% for error in form.usuario_destino_ruta.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.usuario_destino_ruta.help_text %}
+                    <div class="form-text">{{ form.usuario_destino_ruta.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.instruccion_especifica_ruta.id_for_label }}" class="form-label">{{ form.instruccion_especifica_ruta.label | capfirst }}:</label>
+                {{ form.instruccion_especifica_ruta | capfirst }}
+                {% for error in form.instruccion_especifica_ruta.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.instruccion_especifica_ruta.help_text %}
+                    <div class="form-text">{{ form.instruccion_especifica_ruta.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="{{ form.instruccion_complementaria.id_for_label }}" class="form-label">{{ form.instruccion_complementaria.label }}:</label>
+                {{ form.instruccion_complementaria }}
+                {% for error in form.instruccion_complementaria.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+                {% if form.instruccion_complementaria.help_text %}
+                    <div class="form-text">{{ form.instruccion_complementaria.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+    </div>
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="modal-footer">
+        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-success"><i class="fas fa-check fa-sm text-white-50"></i> Derivar Trámite</button>
+    </div>
+</form>
+<script>
+    $(document).ready(function() {
+        $('#selectmultiple').selectpicker({
+            // Clase esencial para activar el plugin
+            // liveSearch: true, // Opcional: para barra de búsqueda
+            // actionsBox: true, // Muestra los botones "Seleccionar todo" y "Deseleccionar todo"
+            selectedTextFormat: 'count > 3', // Muestra "X de Y seleccionados"
+            title: 'Seleccione una o Varias Opciones',
+            width: '100%'
+            // selectAllText: 'Seleccionar todo',
+            // deselectAllText: 'Deseleccionar todo'
+        });
+    });
+</script>
