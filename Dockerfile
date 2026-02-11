@@ -12,10 +12,26 @@ RUN apt-get update \
 # Create app directory
 WORKDIR /app
 
-# Copy requirements and install
-COPY requirements.txt /app/requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
+    libcairo2-dev \
+    gcc \
+    python3-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libldap2-dev \
+    libsasl2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Ahora sí, instalar los requerimientos de Python
 RUN python -m pip install --upgrade pip
+COPY requirements.txt /app/requirements.txt
 RUN python -m pip install --no-cache-dir -r /app/requirements.txt
+
+# Copy requirements and install
+# COPY requirements.txt /app/requirements.txt
+# RUN python -m pip install --upgrade pip
+# RUN python -m pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy project
 COPY . /app

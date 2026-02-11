@@ -29,20 +29,20 @@ DEBUG = True
 
 # Configuracion para desarrollo local
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'http://192.9.220.112:8000/',  # Tu IP local
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://localhost:8000',
+#     'http://127.0.0.1:8000',
+#     'http://192.9.220.112:8000/',  # Tu IP local
+# ]
 
 # Use environment variables in Docker. Default values kept for local development.
-# DEBUG = bool(os.environ.get("DEBUG", 0))
-# SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', SECRET_KEY)
-# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://sistram.comteco.com.bo',
-#     'https://www.sistram.comteco.com.bo',
-# ]
+DEBUG = bool(os.environ.get("DEBUG", 0))
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', SECRET_KEY)
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+CSRF_TRUSTED_ORIGINS = [
+    'https://sistram.comteco.com.bo',
+    'https://www.sistram.comteco.com.bo',
+]
 
 # Application definition
 
@@ -94,10 +94,10 @@ WSGI_APPLICATION = 'tramites.wsgi.application'
 
 DATABASES = {
     # If Postgres env vars are set, use Postgres, otherwise fallback to sqlite3
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # },
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
     #     'NAME': 'controltramites',
@@ -106,14 +106,14 @@ DATABASES = {
     #     'HOST': 'localhost',
     #     'PORT': '5432',
     # }
-    # "default": {
-    #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": os.environ.get("POSTGRES_DB"),
-    #     "USER": os.environ.get("POSTGRES_USER"),
-    #     "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-    #     "HOST": os.environ.get("POSTGRES_HOST"),
-    #     "PORT": os.environ.get("POSTGRES_PORT"),
-    # }
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": os.environ.get("POSTGRES_HOST"),
+        "PORT": os.environ.get("POSTGRES_PORT"),
+    }
 }
 
 
