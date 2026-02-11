@@ -79,7 +79,49 @@
             <br>
             <div class="row">
                 <div class="col">
-                    <label for="" class="form-label">Seguimiento de Tramite:</label>
+                    <div class="row justify-content-between mb-4">
+                        <div class="col">
+                            <label for="" class="form-label">Seguimiento de Tramite:</label>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                            {% if resepcionado %}
+                                {% if usuario.unidad_usuario.nombre_unidad == tramite.destino_jerarquia_control.nombre_unidad and not tramite.estado_control and tramite.usuario_jerarquia_control == usuario %}
+                                    {% if usuario == tramite.usuario_ruta_control %}
+                                    <div class="col text-center">
+                                        <a class="btn btm-sm btn-danger position-absolute top-50 start-100" href="#" data-toggle="modal" data-target="#FinalizarTramiteModal">
+                                            <i class="fas fa-sign-out-alt"></i>FINALIZAR
+                                        </a>
+                                    </div>
+                                    <div class="col text-center">
+                                        <button class="btn btm-sm btn-success" id="btnCrearTramite" data-url="{% url 'derivartramite' tramite.id %}">
+                                            <i class="bi bi-arrow-counterclockwise"></i> DERIVAR
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    <div class="col text-center">
+                                        <a class="btn btm-sm btn-success" href="#" data-toggle="modal" data-target="#AprobarJerarquiaModal">
+                                            <i class="bi bi-check-circle"></i> APROBAR
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                {% if user.username == tramite.usuario_jerarquia_control.username_usuario and not tramite.estado_control %}
+                                <div class="col text-center">
+                                    <a class="btn btm-sm btn-danger" href="{% url 'recepcionar_tramite' tramite.id %}">
+                                        <i class="fas fa-hourglass-half fa-sm fa-fw mr-2 text-gray-400"></i>Resepcionar Tramite
+                                    </a>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                
+                    
+                    
                     <div class="table-responsive">
                         <table class="table table-bordered" id="table" width="100%" cellspacing="0">
                             <thead>
@@ -98,12 +140,17 @@
                             <tbody>
                                 {% for ruta in rutas %}
                                 <tr style="font-size: 12.5px;">
-                                    <td>{{ ruta.origen_ruta }}</td>
-                                    <td><b>{{ tramite.usuario_jerarquia_control.username_usuario }}</b></br>{{ ruta.destino_ruta }}</td>
+                                    <td><b>{{ ruta.origen_nombre_empleado }}</b></br>{{ ruta.origen_ruta }}</td>
+                                    <td><b>{{ ruta.destino_nombre_empleado }}</b></br>{{ ruta.destino_ruta }}</td>
                                     <td>{{ ruta.fecha_ini_ruta|date:"d/m/Y-" }}<span class="text-danger">{{ ruta.fecha_ini_ruta|date:"H:i" }}</span></td>
                                     <td>{{ ruta.fecha_resepcion_ruta|date:"d/m/Y-" }}<span class="text-danger">{{ ruta.fecha_resepcion_ruta|date:"H:i" }}</span></td>
                                     <td>{{ ruta.fecha_fin_ruta|date:"d/m/Y-" }}<span class="text-danger">{{ ruta.fecha_fin_ruta|date:"H:i" }}</span></td>
-                                    <td><span class="badge bg-warning">{{ ruta.tipo_ruta }}</span></td>
+                                    <td>{% if ruta.tipo_ruta == "REVISION" %}
+                                        <span class="badge bg-info">{{ ruta.tipo_ruta }}</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">{{ ruta.tipo_ruta }}</span>
+                                        {% endif %}
+                                    </td>
                                     <td>{% for aux in ruta.instruccion_especifica_ruta.all %}
                                             <i class="bi bi-caret-right-fill"></i>
                                             {{ aux.titulo_instruccion|title }}</br>
@@ -137,7 +184,7 @@
             <div class="row">
             {% if resepcionado %}
                 {% if usuario.unidad_usuario.nombre_unidad == tramite.destino_jerarquia_control.nombre_unidad and not tramite.estado_control and tramite.usuario_jerarquia_control == usuario %}
-                    {% if tramite.destino_ruta_control == tramite.destino_jerarquia_control %}
+                    {% if usuario == tramite.usuario_ruta_control %}
                     <div class="col text-center">
                         <a class="btn btm-sm btn-danger position-absolute top-50 start-100" href="#" data-toggle="modal" data-target="#FinalizarTramiteModal">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>FINALIZAR

@@ -44,6 +44,7 @@ class CargoModel(models.Model):
 class UsuarioModel(models.Model):
     username_usuario = models.CharField(max_length=150,verbose_name='Username')
     password_usuario = models.CharField(max_length=150,verbose_name='Contraseña')
+    password_dos_usuario = models.CharField(max_length=150,verbose_name='Contraseña complementaria:',blank=True,null=True)
     firstname_usuario = models.CharField(max_length=150,blank=True,null=True,verbose_name='Nombre de Usuario')
     lastname_usuario = models.CharField(max_length=150,blank=True,null=True,verbose_name='Apellido de Usuario')
     email_usuario = models.EmailField(max_length=150,blank=True,null=True,verbose_name='Correo de Usuario')

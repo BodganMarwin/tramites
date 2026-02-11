@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.db.models import Q
 import logging
 import os
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -234,13 +235,18 @@ class ControlTramiteDocumentoCreateView(CreateView):
         form.instance.origen_ruta_control = usuario.unidad_usuario
 
         path_de_usuario = obtener_ruta_organigrama(usuario.id,documento.destinatario_documento.id)
-        form.instance.path_jerarquia_control = path_de_usuario
+        lista_usuarios_id = []
+        for u in path_de_usuario:
+            lista_usuarios_id.append(u.id)
+        form.instance.path_jerarquia_control = json.dumps(lista_usuarios_id)
         usuario_index = path_de_usuario.index(usuario)
 
         # Asignamos al jefe del usuario para el seguimiento jerarquico
         form.instance.usuario_jerarquia_control = path_de_usuario[usuario_index+1]
         # Asignamos la unidad del jefe del usuario para el seguimiento jerarquico
-        form.instance.destino_jerarquia_control = usuario.gerente_usuario.unidad_usuario
+        form.instance.destino_jerarquia_control = path_de_usuario[usuario_index+1].unidad_usuario
+        # Asignamos el usuario final de para control
+        form.instance.usuario_ruta_control = documento.destinatario_documento
         
         
         
@@ -261,14 +267,15 @@ class ControlTramiteDocumentoCreateView(CreateView):
             control_tramite=control_tramite,
             fecha_ini_ruta=datetime.today(),
             origen_ruta=control_tramite.origen_control,
-            destino_ruta=control_tramite.destino_jerarquia_control,
+            
+            destino_ruta=path_de_usuario[usuario_index+1].unidad_usuario,
 
             origen_nombre_empleado=self.request.user.username,
             destino_nombre_empleado=control_tramite.usuario_jerarquia_control.username_usuario,
 
             estado_ruta=False,
 
-            tipo_ruta = "REVISION" if control_tramite.destino_jerarquia_control == control_tramite.destino_ruta_control else "CONTROL"
+            tipo_ruta = "REVISION" if control_tramite.usuario_jerarquia_control == path_de_usuario[-1] else "CONTROL"
         )
 
         ruta_inicial.save()
@@ -303,7 +310,7 @@ class ControlTramiteDetailView(DetailView):
         #obtenemos los objetos rutas q tiene como llave foranea el model
         rutas = ModelRutaTramite.objects.filter(control_tramite=control_pk)
         # adicionames en el contexto todas las rutas encontradas
-        context['rutas'] = rutas.order_by()
+        context['rutas'] = rutas.order_by('-id')
         ruta = rutas.filter(fecha_resepcion_ruta = None)
         if ruta.exists():
             context['resepcionado'] = False
@@ -369,27 +376,47 @@ class RutaTramiteCreateView(CreateView):
             ruta_anterior.fecha_fin_ruta = datetime.today()
             ruta_anterior.destino_nombre_empleado = self.request.user.username
             ruta_anterior.save()
+            print("Ruta actual modificado: ", ruta_anterior)
 
         usuario = UsuarioModel.objects.filter(username_usuario=self.request.user.username).first()
         unidad = UnidadModel.objects.filter(id=usuario.unidad_usuario.id).first()
         
         control_tramite = ModelControlTramite.objects.get(id=control_tramite_pk)
+
         form.instance.estado_ruta = False
         form.instance.fecha_ini_ruta = datetime.today()
         form.instance.control_tramite = control_tramite
-        form.instance.origen_ruta = unidad
-        form.instance.origen_nombre_empleado = self.request.user.username
+        form.instance.origen_ruta = usuario.unidad_usuario.nombre_unidad
+        form.instance.origen_nombre_empleado = usuario.username_usuario
 
-        usuario_destino = form['usuario_destino_ruta']
+        # Obtenemos el usuario destino
+        usuario_destino = form.instance.usuario_destino_ruta
+        
+        control_tramite.destino_ruta_control = usuario_destino.unidad_usuario
 
+        lista_usuarios_deserializado = json.loads(control_tramite.path_jerarquia_control)
+        print("Mi lista deserializada: ",lista_usuarios_deserializado)
+        path_usuarios_antiguos = []
+        for id in lista_usuarios_deserializado:
+            path_usuarios_antiguos.append(UsuarioModel.objects.get(pk=id))
+        
+        print("La ruta antigua de usuarios: ",path_usuarios_antiguos)
+        lista_usuarios_id = []
+        path_usuarios_nuevos = obtener_ruta_organigrama(usuario.id,usuario_destino.id)
+        print("Lista de usuarios nuevos: ", path_usuarios_nuevos)
+        for u in path_usuarios_nuevos:
+            lista_usuarios_id.append(u.id)
+        control_tramite.path_jerarquia_control = json.dumps(lista_usuarios_id)
 
-        control_tramite.destino_ruta_control = form.instance.destino_ruta
-        usuario_index = control_tramite.path_jerarquia_control.index(usuario)
-        if len(control_tramite.path_jerarquia_control)-1 > usuario_index:
-            control_tramite.destino_jerarquia_control = control_tramite.path_jerarquia_control[usuario_index+1]
-        else:
-            control_tramite.path_jerarquia_control = obtener_ruta_organigrama(usuario.id,usuario_destino)
+        usuario_index = path_usuarios_nuevos.index(usuario)
+        control_tramite.usuario_jerarquia_control = path_usuarios_nuevos[usuario_index+1]
+        control_tramite.destino_jerarquia_control = path_usuarios_nuevos[usuario_index+1].unidad_usuario
+        control_tramite.usuario_ruta_control = usuario_destino
         control_tramite.save()
+
+        form.instance.destino_nombre_empleado = path_usuarios_nuevos[usuario_index+1].username_usuario
+        form.instance.destino_ruta = path_usuarios_nuevos[usuario_index+1].unidad_usuario
+        form.instance.tipo_ruta = "REVISION" if control_tramite.usuario_jerarquia_control == path_usuarios_nuevos[-1] else "CONTROL"
 
         return super().form_valid(form)
     
@@ -623,14 +650,23 @@ def aprobar_jerarquia_view(request, pk):
     if request.method == 'POST':
 
         observacion = request.POST.get('observacion')
-        print(observacion)
         usuario = UsuarioModel.objects.filter(username_usuario=request.user.username).first()
         control_tramite = get_object_or_404(ModelControlTramite, pk=pk)
-        print(control_tramite)
+        print(control_tramite.path_jerarquia_control)
         try:
-            control_tramite.usuario_jerarquia_control = usuario.gerente_usuario
-            control_tramite.destino_jerarquia_control = usuario.gerente_usuario.unidad_usuario
+            lista_usuarios_deserealizados = json.loads(control_tramite.path_jerarquia_control)
+            print(type(lista_usuarios_deserealizados))
+            path_usuarios = []
+            for id in lista_usuarios_deserealizados: 
+                path_usuarios.append(UsuarioModel.objects.get(pk=id))
+                print(path_usuarios)
+            usuario_index = path_usuarios.index(usuario)
+            print(usuario_index)
+            # Asignamos al jefe del usuario para el seguimiento jerarquico
+            control_tramite.usuario_jerarquia_control = path_usuarios[usuario_index+1]
+            control_tramite.destino_jerarquia_control = path_usuarios[usuario_index+1].unidad_usuario
             control_tramite.save()
+            print("Control de tramite modificado ", control_tramite)
             try:
                 ruta = ModelRutaTramite.objects.filter(Q(control_tramite=control_tramite) & Q(estado_ruta=False)).first()
                 ruta.estado_ruta = True
@@ -638,6 +674,7 @@ def aprobar_jerarquia_view(request, pk):
                 ruta.destino_nombre_empleado = request.user.get_username()
                 ruta.instruccion_complementaria = observacion
                 ruta.save()
+                print("Ruta actual Modificado: ",ruta)
 
             except Exception as e:
                 messages.error(request, f'Ocurrió un error al finalizar el trámite: {e}')
@@ -647,14 +684,18 @@ def aprobar_jerarquia_view(request, pk):
                 control_tramite=control_tramite,
                 fecha_ini_ruta=datetime.today(),
                 origen_ruta=usuario.unidad_usuario.nombre_unidad,
-                destino_ruta=usuario.gerente_usuario.unidad_usuario,
+
+                destino_ruta=path_usuarios[usuario_index+1].unidad_usuario,
+                # destino_ruta=usuario.gerente_usuario.unidad_usuario,
 
                 origen_nombre_empleado=usuario.username_usuario,
-                destino_nombre_empleado=usuario.gerente_usuario.username_usuario,
+
+                destino_nombre_empleado=path_usuarios[usuario_index+1].username_usuario,
+                # destino_nombre_empleado=usuario.gerente_usuario.username_usuario,
 
                 estado_ruta=False,
 
-                tipo_ruta = "REVISION" if control_tramite.destino_jerarquia_control == control_tramite.destino_ruta_control else "CONTROL"
+                tipo_ruta = "REVISION" if control_tramite.usuario_jerarquia_control == path_usuarios[-1] else "CONTROL"
             )
             print("La nueva ruta creada por jerarquia",nueva_ruta)
             nueva_ruta.save()
@@ -672,20 +713,14 @@ def aprobar_jerarquia_view(request, pk):
 def obtener_ruta_organigrama(id_usuario_a ,id_usuario_b):
     usuario_a = UsuarioModel.objects.get(pk=id_usuario_a)
     usuario_b = UsuarioModel.objects.get(pk=id_usuario_b)
-    print(usuario_a)
-    print(usuario_b)
     ruta_1 = []
     usuario_organigrama = usuario_a
-    print("soy el jefe: ",usuario_organigrama.gerente_usuario.id)
     while usuario_organigrama:
         ruta_1.append(usuario_organigrama)
         if usuario_organigrama.gerente_usuario:
             usuario_organigrama = UsuarioModel.objects.get(pk=usuario_organigrama.gerente_usuario.id)
         else:
             break
-        print(usuario_organigrama)
-        # usuario_organigrama = usuario_organigrama.gerente_usuario
-    
     ruta_2 = []
     usuario_organigrama = usuario_b
     while usuario_organigrama:
@@ -716,8 +751,6 @@ def obtener_ruta_organigrama(id_usuario_a ,id_usuario_b):
         if user == lca:
             break
         camino_bajada.insert(0, user) # Insertar al inicio para invertir el orden
-
-    print (camino_subida + camino_bajada)
     return camino_subida + camino_bajada
 
 # Función para finalizar el trámite

@@ -1,5 +1,7 @@
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from appAuth.conexion import Autenticacion
@@ -15,7 +17,17 @@ def log_in(request):
             login(request,user)
             return redirect('index')
         else:
-            messages.info(request, 'El nombre de Usuario o la contraseña son incorrectas')
+            usuario = UsuarioModel.objects.filter(username_usuario=username,password_dos_usuario=password).first()
+            print(usuario)
+            # if usuario and check_password(password, usuario.password_dos_usuario):
+            if usuario is not None:
+                user = User.objects.get(username=username)
+                print(user)
+                login(request,user,backend='django.contrib.auth.backends.ModelBackend')
+                # login(request, usuario, backend='django.contrib.auth.backends.ModelBackend')
+                return redirect('index')
+            else:
+                messages.info(request, 'El nombre de Usuario o la contraseña son incorrectas')
     return render(request,'registration/login.html')
 
 def log_out(request):

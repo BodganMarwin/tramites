@@ -208,10 +208,11 @@ class ModelControlTramite(models.Model):
     origen_ruta_control = models.CharField(max_length=150, verbose_name="Unidad Origen", blank=True)
     # destino de ruta (STRING) donde se enviará el tramite lo utilziamos para mostrar en los tramites pendientes del usuario
     destino_ruta_control = models.ForeignKey(UnidadModel,on_delete=models.RESTRICT,verbose_name="Unidad Destino del Tramite", blank=True,null=True)
-    
+    # usuario destino de la ruta, donde se enviara el tramite 
+    usuario_ruta_control = models.ForeignKey(UsuarioModel, on_delete=models.RESTRICT, verbose_name="Usuario Jerarquico Responsable", blank=True, null=True,related_name="usuario_destino")
     #
     destino_jerarquia_control = models.ForeignKey(UnidadModel,on_delete=models.RESTRICT,verbose_name="Destino Jerarquico del Tramite", blank=True,null=True, related_name="tramites_jerarquia")
-    usuario_jerarquia_control = models.ForeignKey(UsuarioModel, on_delete=models.RESTRICT, verbose_name="Usuario Jerarquico Responsable", blank=True, null=True)
+    usuario_jerarquia_control = models.ForeignKey(UsuarioModel, on_delete=models.RESTRICT, verbose_name="Usuario Jerarquico Responsable", blank=True, null=True, related_name="usuario_jerarquia")
     # crea el path momentaneo del usuario_a al usuario_b
     path_jerarquia_control = models.TextField(verbose_name="Path de usuario_a al usuario_b", blank=True)
     
